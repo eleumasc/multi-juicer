@@ -6,7 +6,7 @@ echo "For example docker-desktop with its included k8s cluster"
 
 echo "Usage: ./build-and-deploy.sh"
 
-version="$(uuidgen)"
+version="$(node generate-uuid.js)"
 
 docker build -t local/juice-balancer:$version ./juice-balancer &
 docker build -t local/cleaner:$version ./cleaner &
