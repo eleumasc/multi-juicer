@@ -10,12 +10,18 @@ const { get } = require('./config');
 const lodashGet = require('lodash/get');
 const once = require('lodash/once');
 
+const crypto = require('crypto');
+
 // Gets the Deployment uid for the JuiceBalancer
 // This is required to set the JuiceBalancer as owner of the created JuiceShop Instances
 const getJuiceBalancerDeploymentUid = once(async () => {
   const deployment = await k8sAppsApi.readNamespacedDeployment('juice-balancer', get('namespace'));
   return lodashGet(deployment, ['body', 'metadata', 'uid'], null);
 });
+
+const getCtfKeyForTeam = (team) => {
+  return crypto.createHmac('sha256', get('juiceShop.ctfKey')).update(team).digest('hex');
+};
 
 const createDeploymentForTeam = async ({ team, passcodeHash }) => {
   const deploymentConfig = {
@@ -75,7 +81,7 @@ const createDeploymentForTeam = async ({ team, passcodeHash }) => {
                 },
                 {
                   name: 'CTF_KEY',
-                  value: get('juiceShop.ctfKey'),
+                  value: getCtfKeyForTeam(team),
                 },
                 {
                   name: 'SOLUTIONS_WEBHOOK',
